@@ -43,9 +43,9 @@ We need to define parameters of nuclear data to process, as listed below:
 - Energy threshold of projectile: We can set the energy threshold for data processing to save the computational time while maintaining sufficient performance of generated Frag data.
 Users can easily determined these parameters based on items in the GUI as follows,
 
-![GUI overview](docs/IK-Frag_Discription_1.png)
+![GUI overview](docs/IK-Frag-Discription_1.png)
 
-![GUI overview](docs/IK-Frag_Discription_2.png)
+![GUI overview](docs/IK-Frag-Discription_2.png)
 
 By entering all parameters, every process is hundled automatically.
 
