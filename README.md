@@ -43,11 +43,13 @@ We need to define parameters of nuclear data to process, as listed below:
 - Energy threshold of projectile: We can set the energy threshold for data processing to save the computational time while maintaining sufficient performance of generated Frag data.
 Users can easily determined these parameters based on items in the GUI as follows,
 
-![GUI overview](docs/frag_data_discription.png)
+![GUI overview](docs/frag_data_discription_1.png)
 
 ![GUI overview](docs/frag_data_discription_2.png)
 
 By entering all parameters, every process is hundled automatically.
+
+As for the nuclear data, users can extract it from IK-Frag/data_files folder.
 
 ## Dependencies
 - Python 3.12 (Authors' environment) or higher
@@ -59,6 +61,6 @@ By entering all parameters, every process is hundled automatically.
 This project is licensed under the MIT License.
 
 ## Author
-- Yu Fujiwara, fjwryu.1120@gmail.com
-- Toshiro Sakabe, sakabe.toshiro.f21@kyoto-u.jp
-- Masahiro Okamura, okamura@bnl.gov
+- Yu Fujiwara, Graduate School of Engineering, Osaka University, fjwryu.1120@gmail.com
+- Toshiro Sakabe, Brookhaven National Laboratory, sakabe.toshiro.f21@kyoto-u.jp
+- Masahiro Okamura, Brookhaven National Laboratory, okamura@bnl.gov
