@@ -121,7 +121,7 @@ def legendre_coefficients_processing(data):
             i += 1
             while i < len(data):
                 next_row = data[i]
-                if next_row[0] == 0.0:
+                if next_row[0] == 0.0 and next_row[1] > 10:
                     break
                 clean_coeffs = [val for val in next_row if isinstance(val, float)]
                 coeffs.extend(clean_coeffs)
