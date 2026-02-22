@@ -4,23 +4,24 @@ from tkinter import ttk, filedialog, messagebox
 import tkinter.font as tkfont
 import sys
 import traceback
+import os
 
-# Windowsの高DPI対応（にじみ/ぼやけ対策）
+# High DPI support for Windows (anti-blur/anti-aliasing)
 def _enable_permonitor_dpi_awareness():
     try:
         import ctypes
-        # Windows 10 以降
+        # Windows 10 and later
         ctypes.windll.shcore.SetProcessDpiAwareness(1)  # PER_MONITOR_AWARE
     except Exception:
         try:
-            # 旧API（Windows 8.1以前）
+            # Legacy API (Windows 8.1 and earlier)
             import ctypes
             ctypes.windll.user32.SetProcessDPIAware()
         except Exception:
             pass
 
 def _set_tk_scaling(root):
-    """Tkのスケーリングを実ディスプレイDPIから自動設定"""
+    """Automatically set Tk scaling based on actual display DPI"""
     try:
         import ctypes
         user32 = ctypes.windll.user32
@@ -28,26 +29,26 @@ def _set_tk_scaling(root):
         hdc = ctypes.windll.user32.GetDC(0)
         LOGPIXELSX = 88
         dpi = ctypes.windll.gdi32.GetDeviceCaps(hdc, LOGPIXELSX)
-        scaling = dpi / 72.0  # 1ポイントあたりのピクセル数
+        scaling = dpi / 72.0  # Pixels per point
         root.tk.call('tk', 'scaling', scaling)
     except Exception:
         root.tk.call('tk', 'scaling', 1.25)
 
-# ---- あなたの既存のモジュール ----
+# ---- Existing modules ----
 from frag_data_writing import frag_data_writing
 
 class FragDataGUI(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        # DPI最適化
+        # DPI optimization
         _enable_permonitor_dpi_awareness()
         _set_tk_scaling(self)
 
         self.title("IK-Frag: generating nuclear data for inverse kinematic reactions in PHITS")
-        self.geometry("820x520")  # 少し広めでフォントに余裕を
+        self.geometry("820x520")  # Slightly wider to allow for font space
 
-        # --- フォント（Segoe UIに統一）---
+        # --- Fonts (Unified to Segoe UI) ---
         base = "Segoe UI"
         tkfont.nametofont("TkDefaultFont").configure(family=base, size=10)
         tkfont.nametofont("TkTextFont").configure(family=base, size=10)
@@ -63,10 +64,10 @@ class FragDataGUI(tk.Tk):
         style.configure("Status.TLabel", font=(base, 10, "italic"))
         style.configure("Heading.TLabel", font=(base, 11, "bold"))
 
-        # 変数定義
+        # Variable definitions
         self.input_path = tk.StringVar(value="")
         self.nuclear_data = tk.StringVar(value="JENDL")  # TENDL or ENDF
-        self.output_frag_path = tk.StringVar(value="frag_data.dat")
+        self.output_frag_path = tk.StringVar(value=os.path.abspath("frag_data.dat"))
         self.step_energy = tk.DoubleVar(value=0.01)
         self.step_degree = tk.DoubleVar(value=0.05)
         self.material = tk.StringVar(value="Li")
@@ -90,7 +91,7 @@ class FragDataGUI(tk.Tk):
 
         frm_out = ttk.LabelFrame(tab_io, text="Output (frag_data)")
         frm_out.pack(fill="x", padx=10, pady=10)
-        ttk.Label(frm_out, text="Output file name:").grid(row=0, column=0, sticky="w", padx=8, pady=8)
+        ttk.Label(frm_out, text="Output file path:").grid(row=0, column=0, sticky="w", padx=8, pady=8)
         ent_out = ttk.Entry(frm_out, textvariable=self.output_frag_path, width=72)
         ent_out.grid(row=0, column=1, sticky="we", padx=8, pady=8)
         ttk.Button(frm_out, text="Select", command=self.browse_output).grid(row=0, column=2, padx=8, pady=8)
@@ -124,7 +125,7 @@ class FragDataGUI(tk.Tk):
         ttk.Entry(frm_cfg, textvariable=self.step_energy, width=12).grid(row=0, column=1, padx=8, pady=8)
         ttk.Label(frm_cfg, text="Degree step Δθ [deg]:").grid(row=1, column=0, sticky="w", padx=8, pady=8)
         ttk.Entry(frm_cfg, textvariable=self.step_degree, width=12).grid(row=1, column=1, padx=8, pady=8)
-        ttk.Label(tab_cfg, text="※ Defaults: ΔE=0.01 MeV, Δθ=0.05 deg", style="Status.TLabel")\
+        ttk.Label(tab_cfg, text="* Defaults: ΔE=0.01 MeV, Δθ=0.05 deg", style="Status.TLabel")\
             .pack(anchor="w", padx=12, pady=6)
 
         frm_mat = ttk.LabelFrame(tab_cfg, text="Projectile")
@@ -146,7 +147,7 @@ class FragDataGUI(tk.Tk):
         ttk.Button(frm_settings_run, text="Generate", command=self.run_generation)\
             .pack(side="left")
 
-        # フッター
+        # Footer
         sep = ttk.Separator(self, orient="horizontal")
         sep.pack(fill="x", pady=(8, 0))
         ttk.Label(self, text="IK Frag", anchor="e").pack(anchor="e", padx=12, pady=8)
@@ -162,7 +163,7 @@ class FragDataGUI(tk.Tk):
 
     def browse_output(self):
         path = filedialog.asksaveasfilename(
-            title="Output file name (frag_data)",
+            title="Output file path (frag_data)",
             defaultextension=".dat",
             initialfile=self.output_frag_path.get() or "frag_data.dat",
             filetypes=[("DAT files", "*.dat"), ("All files", "*.*")]
@@ -191,7 +192,7 @@ class FragDataGUI(tk.Tk):
             messagebox.showwarning("Warning", "Please select the input data.")
             return
         if not out_path:
-            messagebox.showwarning("Warning", "Please name the output file.")
+            messagebox.showwarning("Warning", "Please specify the output file path.")
             return
         if not self._validate_inputs():
             return

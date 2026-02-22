@@ -143,6 +143,7 @@ def legendre_function_endf_format(data_dict):
             result[E] = expr
         return result
 
+"""
 def angular_distributions(data_dict):
     result = {}
     exclude_values = {328.0, 409.0, 6.0, 50.0, 51.0}
@@ -165,6 +166,52 @@ def angular_distributions(data_dict):
         expr = coef[0] * mu + coef[1]
 
         result[E] = expr
+
+    return result
+"""
+
+def angular_distributions(data_dict, L_max=4):
+    # Fit angle�DDX data with a Legendre polynomial expansion:
+    result = {}
+    mu_sym = sp.Symbol('mu')
+    exclude_values = {328.0, 409.0, 6.0, 50.0, 51.0}
+
+    for E, values in data_dict.items():
+        if not values:
+            # return zero polynomial if there is no data
+            result[E] = 0 * mu_sym
+            continue
+
+        # Remove identifiers that survived previous processing
+        filtered_values = [v for v in values if v not in exclude_values]
+
+        if len(filtered_values) < 2:
+            result[E] = 0 * mu_sym
+            continue
+
+        # Split into mu and DDX arrays
+        mus = []
+        ddx = []
+        # assume filtered_values = [mu1, ddx1, mu2, ddx2, ...]
+        for i in range(0, len(filtered_values) - 1, 2):
+            mus.append(float(filtered_values[i]))
+            ddx.append(float(filtered_values[i + 1]))
+
+        mus = np.array(mus, dtype=float)
+        ddx = np.array(ddx, dtype=float)
+
+        # Build design matrix: P_ij = P_j(mu_i) for j = 0..L_max
+        P = np.zeros((len(mus), L_max + 1), dtype=float)
+        for l in range(L_max + 1):
+            # Legendre basis polynomial of degree l
+            P[:, l] = Legendre.basis(l)(mus)
+
+        # Solve least squares: P * a ~ ddx
+        coeffs, *_ = np.linalg.lstsq(P, ddx, rcond=None)
+
+        # Build Sympy expression f(mu) = sum a_l P_l(mu)
+        expr = sum(coeffs[l] * sp.legendre(l, mu_sym) for l in range(L_max + 1))
+        result[E] = sp.simplify(expr)
 
     return result
 
