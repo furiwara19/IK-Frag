@@ -1,6 +1,8 @@
 import re
+import scipy
 import sympy as sp
 from scipy.special import legendre
+from numpy.polynomial.legendre import Legendre  # new import
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
