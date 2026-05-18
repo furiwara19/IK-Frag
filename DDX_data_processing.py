@@ -62,6 +62,8 @@ def merge_ddx(
     energy_maps = {"ground": [], "excite": []}  # last-energy diagnostics
     gammas      = {"ground": None, "excite": None}
 
+    print("[INFO] Applying inverse-kinematics transformation-260516: mu -> -mu")
+
     for i_e, e in enumerate(tqdm(E_incident, desc="DDX data generating...", unit="Energy")):
         if i_e == 0:
             # Preserve original behavior for the first slot
@@ -143,7 +145,7 @@ def merge_ddx(
 
             Vg = []
             for deg_cm in theta_cm_list_g:
-                mu = float(np.cos(np.radians(np.float32(deg_cm))))
+                mu = -float(np.cos(np.radians(np.float32(deg_cm))))
                 v_cm = ddx_g_src(mu) if callable(ddx_g_src) else ddx_g_src.subs({'mu': mu}).evalf()
                 v_lab = cm_to_lab_frame_DDX(gamma_g, deg_cm, v_cm)
                 val = float(v_lab)
@@ -160,7 +162,7 @@ def merge_ddx(
 
                 Vx = []
                 for deg_cm in theta_cm_list_x:
-                    mu = float(np.cos(np.radians(np.float32(deg_cm))))
+                    mu = -float(np.cos(np.radians(np.float32(deg_cm))))
                     v_cm = ddx_x_src(mu) if callable(ddx_x_src) else ddx_x_src.subs({'mu': mu}).evalf()
                     v_lab = cm_to_lab_frame_DDX(gamma_x, deg_cm, v_cm)
                     val = float(v_lab)
